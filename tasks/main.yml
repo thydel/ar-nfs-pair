@@ -85,4 +85,4 @@
     dest: /etc/fstab
     insertafter: EOF
     line: |
-      {{ server.node }}{{ server.path }} {{ client.path }} nfs {{ options.mount }}
+      {{ server.node }}:{{ server.path }} {{ client.path }} nfs {{ options.mount }}
