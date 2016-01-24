@@ -3,4 +3,4 @@
 options:
   export: (rw,sync,no_subtree_check)
   mount: rw,hard,intr,noatime,nodiratime 0 0
-  shell: /usr/bin/nlogin
+  shell: /usr/bin/nologin
