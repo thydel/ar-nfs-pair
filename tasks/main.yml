@@ -76,7 +76,7 @@
     dest: /etc/exports
     insertafter: EOF
     line: |
-      {{ server.path }} {{ client.node }}{{ options.export }}
+      {{ server.path }} {{ client.node }}{{ server.export|default(options.export) }}
 
 - name: mount dir from server on client
   tags: client
