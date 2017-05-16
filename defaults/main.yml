@@ -2,5 +2,5 @@
 
 options:
   export: (rw,sync,no_subtree_check)
-  mount: rw,hard,intr,noatime,nodiratime 0 0
+  mount: rw,hard,intr,noatime,nodiratime,noauto 0 0
   shell: /usr/sbin/nologin
