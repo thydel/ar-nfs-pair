@@ -75,7 +75,7 @@
   lineinfile:
     dest: /etc/exports
     insertafter: EOF
-    line: |
+    line: |-
       {{ server.path }} {{ client.node }}{{ server.export|default(options.export) }}
 
 - name: mount dir from server on client
@@ -84,5 +84,5 @@
   lineinfile:
     dest: /etc/fstab
     insertafter: EOF
-    line: |
+    line: |-
       {{ server.node }}:{{ server.path }} {{ client.path }} nfs {{ options.mount }}
