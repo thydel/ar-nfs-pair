@@ -1,42 +1,55 @@
 ---
 
-- name: create group on server
-  tags: server
-  delegate_to: &server '{{ server.name }}'
-  group:
-    name: &name '{{ user.name }}'
-    gid: &uid '{{ user.uid }}'
+- block:
 
-- name: create group on client
-  tags: client
-  delegate_to: &client '{{ client.name }}'
-  group:
-    name: *name
-    gid: *uid
+  - name: create group on server
+    tags: server
+    delegate_to: &server '{{ server.name }}'
+    group:
+      name: &name '{{ user.name }}'
+      gid: &uid '{{ user.uid }}'
 
-- name: create user on server
+  - name: create group on client
+    tags: client
+    delegate_to: &client '{{ client.name }}'
+    group:
+      name: *name
+      gid: *uid
+
+  - name: create user on server
+    tags: server
+    delegate_to: *server
+    user:
+      name: *name
+      group: *name
+      uid: *uid
+      comment: &comment '{{ user.comment }}'
+      home: '{{ server.home|default(server.path) }}'
+      shell: '{{ server.shell|default(options.shell) }}'
+      createhome: False
+
+  - name: create user on client
+    tags: client
+    delegate_to: *client
+    user:
+      name: *name
+      group: *name
+      uid: *uid
+      comment: *comment
+      home: '{{ client.home|default(client.path) }}'
+      shell: '{{ client.shell|default(options.shell) }}'
+      createhome: False
+      update_password: on_create
+
+  when: user.exists is not defined
+
+- name: create pre-dir on server
   tags: server
   delegate_to: *server
-  user:
-    name: *name
-    group: *name
-    uid: *uid
-    comment: &comment '{{ user.comment }}'
-    home: '{{ server.home|default(server.path) }}'
-    shell: '{{ server.shell|default(options.shell) }}'
-    createhome: False
-
-- name: create user on client
-  tags: client
-  delegate_to: *client
-  user:
-    name: *name
-    group: *name
-    uid: *uid
-    comment: *comment
-    home: '{{ client.home|default(client.path) }}'
-    shell: '{{ client.shell|default(options.shell) }}'
-    createhome: False
+  file:
+    path: |-
+      {{ server.path.split('/')[:-1]|join('/') }}
+    state: directory
 
 - name: create dir on server
   tags: server
@@ -47,6 +60,14 @@
     owner: *name
     group: *name
     mode: 0755
+
+- name: create pre-dir on client
+  tags: client
+  delegate_to: *client
+  file:
+    path: |-
+      {{ client.path.split('/')[:-1]|join('/') }}
+    state: directory
 
 - name: create dir on client
   tags: client
