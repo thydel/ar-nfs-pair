@@ -2,21 +2,21 @@
 
 - block:
 
-  - name: create group on server
+  - name: create group on server {{ server.name }}
     tags: server
     delegate_to: &server '{{ server.name }}'
     group:
       name: &name '{{ user.name }}'
       gid: &uid '{{ user.uid }}'
 
-  - name: create group on client
+  - name: create group on client {{ client.name }}
     tags: client
     delegate_to: &client '{{ client.name }}'
     group:
       name: *name
       gid: *uid
 
-  - name: create user on server
+  - name: create user {{ user.name }} on server {{ server.name }}
     tags: server
     delegate_to: *server
     user:
@@ -28,7 +28,7 @@
       shell: '{{ server.shell|default(options.shell) }}'
       createhome: False
 
-  - name: create user on client
+  - name: create user {{ user.name }} on client {{ client.name }}
     tags: client
     delegate_to: *client
     user:
@@ -43,7 +43,7 @@
 
   when: user.exists is not defined
 
-- name: create pre-dir on server
+- name: create pre-dir on server {{ server.name }}
   tags: server
   delegate_to: *server
   file:
@@ -51,7 +51,7 @@
       {{ server.path.split('/')[:-1]|join('/') }}
     state: directory
 
-- name: create dir on server
+- name: create dir on server {{ server.name }}
   tags: server
   delegate_to: *server
   file:
@@ -59,9 +59,9 @@
     state: directory
     owner: *name
     group: *name
-    mode: 0755
+    mode: &mode '{{ mode }}'
 
-- name: create pre-dir on client
+- name: create pre-dir on client {{ client.name }}
   tags: client
   delegate_to: *client
   file:
@@ -69,7 +69,7 @@
       {{ client.path.split('/')[:-1]|join('/') }}
     state: directory
 
-- name: create dir on client
+- name: create dir on client {{ client.name }}
   tags: client
   delegate_to: *client
   file:
@@ -77,19 +77,19 @@
     state: directory
     owner: *name
     group: *name
-    mode: 0755
+    mode: *mode
 
 - name: install NFS on server
   tags: server
   delegate_to: *server
   apt: { name: nfs-kernel-server }
 
-- name: install NFS on client
+- name: install NFS on client {{ client.name }}
   tags: client
   delegate_to: *client
   apt: { name: nfs-common }
 
-- name: export dir for client on server
+- name: export dir for client on server {{ server.name }}
   tags: server
   delegate_to: *server
   notify: restart nfs-kernel-server
@@ -99,7 +99,7 @@
     line: |-
       {{ server.path }} {{ client.node }}{{ server.export|default(options.export) }}
 
-- name: mount dir from server on client
+- name: mount dir from server on client {{ client.name }}
   tags: client
   delegate_to: *client
   lineinfile:
