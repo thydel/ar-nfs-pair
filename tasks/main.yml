@@ -59,7 +59,7 @@
     state: directory
     owner: *name
     group: *name
-    mode: &mode '{{ mode | default("0755") }}'
+    mode: &mode '{{ mode | default(0755) }}'
 
 - name: create pre-dir on client {{ client.name }}
   tags: client
